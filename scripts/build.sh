@@ -44,7 +44,7 @@ include_directories(
 find_package(NEOS REQUIRED)
 
 # Ajouter l'exécutable avec tous les fichiers trouvés
-add_executable(navierstokes \${SRCS} \${SRC_DIR}/prediction-projection/Projection.cpp)
+add_executable(navierstokes \${SRCS} \${SRC_DIR}/prediction-projection/Projection.cpp \${SRC_DIR}/prediction-projection/Prediction.cpp)
 
 # Lier la bibliothèque NEOS
 target_link_libraries(navierstokes neos::neos)

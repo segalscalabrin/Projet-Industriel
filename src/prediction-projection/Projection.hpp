@@ -33,7 +33,13 @@
 #ifndef __PROJECTION_HPP__
 #define __PROJECTION_HPP__
 
-#include "include.hpp"
+#include "Grid.hpp"
+#include "common.hpp"
+#include "LaplacianFactory.hpp"
+#include "NeosPiercedVector.hpp"
+#include "StencilBuilder.hpp"
+#include "SimulationParameters.hpp"
+#include "NeosSolution.hpp"
 
 using std::vector;
 

@@ -31,6 +31,9 @@
  */
 
 #include "Prediction.hpp"
+#include "LaplacianFactory.hpp"
+#include "Gradient.hpp"
+#include "Transport.hpp"
 #include <chrono>
 #include <numeric>
 

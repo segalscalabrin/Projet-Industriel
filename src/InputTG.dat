@@ -1,0 +1,29 @@
+#Test de fichier d'entree
+
+# Domain
+Domain origin: 1 5 10
+
+# Time
+Final time: 1.0
+
+# Output
+Writing Frequency:
+Printing Frequency:
+
+# AMR
+AMR Flag:
+AMR Frequency:
+
+# CFL condition
+CFL: 0.8
+
+# Fluid characteristics
+Fluid Density: 1. 
+Fluid Viscosity: 0.01
+
+# Solid characteristics
+Solid Density: 1.0
+Solid Dynamic Viscosity:
+Shear Modulus: 1e-2
+C1 coefficient:
+C2 coefficient:

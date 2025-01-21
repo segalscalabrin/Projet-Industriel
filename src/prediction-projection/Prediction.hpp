@@ -32,7 +32,12 @@
 #ifndef __PREDICTION_HPP__
 #define __PREDICTION_HPP__
 
-#include "include.hpp"
+#include "Grid.hpp"
+#include "LaplacianFactory.hpp"
+#include "SimulationParameters.hpp"
+#include "StencilBuilder.hpp"
+#include "UserDataComm.hpp"
+#include "NeosSolution.hpp"
 
 namespace neos {
 

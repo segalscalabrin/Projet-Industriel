@@ -31,7 +31,12 @@
  */
 
 
+#include <numeric>
 #include "Projection.hpp"
+#include "InterpolatorFactory.hpp"
+#include "RBF.hpp"
+#include "NeosAssert.hpp"
+#include "Gradient.hpp"
 
 namespace neos {
 
