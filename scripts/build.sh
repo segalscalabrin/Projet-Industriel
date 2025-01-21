@@ -27,7 +27,6 @@ set(SRC_DIR \${CMAKE_SOURCE_DIR}/../src)
 # Récupérer tous les fichiers .cpp du répertoire source
 file(GLOB_RECURSE SRCS
     \${SRC_DIR}/*.cpp
-    \${SRC_DIR}/**/*.cpp
 )
 
 # Vérifier si des fichiers .cpp ont été trouvés
@@ -45,7 +44,7 @@ include_directories(
 find_package(NEOS REQUIRED)
 
 # Ajouter l'exécutable avec tous les fichiers trouvés
-add_executable(navierstokes \${SRCS})
+add_executable(navierstokes \${SRCS} \${SRC_DIR}/prediction-projection/Projection.cpp)
 
 # Lier la bibliothèque NEOS
 target_link_libraries(navierstokes neos::neos)

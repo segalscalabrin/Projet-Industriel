@@ -40,6 +40,10 @@ int main(int argc, char **argv) {
     Transport *trpt = new Transport(grid);
     Laplacian *lap = new Laplacian(grid);
 
+    StencilBuilder *stenBuild;
+    SimulationParameters *simPara;
+    Projection *proj = new Projection(grid, stenBuild, simPara);
+
     // Create pierced vector for different value
     vector<double> phi0(0.0, grid->nbCells());
     vector<double> mu0(0.0, grid->nbCells());
@@ -49,13 +53,15 @@ int main(int argc, char **argv) {
     PiercedVector<double> mu = VtoPV(mu0, grid);
     PiercedVector<NPoint> vitesse = VtoPV(vitesse0, grid);
 
+
+
     while(data.t < data.tmax) {
         data.t += data.dt;
         // Compute level set 
         transportValue(grid, trpt, phi, vitesse, data.dt);
 
         // Compute the laplacian matrix
-        buildLaplacianMatrix(grid, laplacian, data.t, mu)
+        buildLaplacianMatrix(grid, laplacian, proj, data.t, mu)
     }
 
 
