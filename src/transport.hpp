@@ -3,6 +3,6 @@
 
 #include "include.hpp"
 
-PiercedVector<double> transportValue(Grid *grid, Transport *trpt, PiercedVector<double> &phi, PiercedVector<NPoint> vitesse, double dt);
+void transportValue(Grid *grid, Transport *trpt, PiercedVector<double> &phi, PiercedVector<NPoint> vitesse, double dt);
 
 #endif

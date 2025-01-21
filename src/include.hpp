@@ -4,8 +4,6 @@
 #include "Neos.hpp"
 #include "SimulationParameters.hpp"
 #include "NeosSolution.hpp"
-#include "Grid.hpp"
-#include "Laplacian.hpp"
 
 using namespace neos;
 

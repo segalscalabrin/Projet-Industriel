@@ -38,16 +38,16 @@ int main(int argc, char **argv) {
     Data data;
     Grid *grid = new Grid(0.0, 0.0, 0.0, 1.0, 1.0 / std::pow(2, data.level), data.dim);
     Transport *trpt = new Transport(grid);
-    Laplacian *lap = new Laplacian(grid);
+    Laplacian *lap = (Laplacian *)LaplacianFactory::get(lapType::FINITEVOLUME, solverType::PETSC, grid);
 
     StencilBuilder *stenBuild;
     SimulationParameters *simPara;
     Projection *proj = new Projection(grid, stenBuild, simPara);
 
     // Create pierced vector for different value
-    vector<double> phi0(0.0, grid->nbCells());
-    vector<double> mu0(0.0, grid->nbCells());
-    vector<NPoint> vitesse0(0.0, grid->nbCells());
+    std::vector<double> phi0(0.0, grid->nbCells());
+    std::vector<double> mu0(0.0, grid->nbCells());
+    std::vector<NPoint> vitesse0(grid->nbCells());
 
     PiercedVector<double> phi = VtoPV(mu0, grid);
     PiercedVector<double> mu = VtoPV(mu0, grid);
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
         transportValue(grid, trpt, phi, vitesse, data.dt);
 
         // Compute the laplacian matrix
-        buildLaplacianMatrix(grid, laplacian, proj, data.t, mu)
+        buildLaplacianMatrix(grid, lap, proj, data.t, mu);
     }
 
 
