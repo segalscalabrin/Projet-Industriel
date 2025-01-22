@@ -39,6 +39,8 @@
 #include "UserDataComm.hpp"
 #include "NeosSolution.hpp"
 
+#include "biBluidMuRho.hpp"
+
 namespace neos {
 
 class Prediction
@@ -71,7 +73,8 @@ Prediction(Grid* grid,
  */
 void ComputePredictionStep(Solution& SolPrev,
                            Solution& Sol,
-                           Solution& SolNext);
+                           Solution& SolNext,
+                           PiercedVector<double>& levelSet);
 
 /**
  * @brief Solve the prediction linear system. LHS*res = RHS.

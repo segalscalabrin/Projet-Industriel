@@ -41,6 +41,8 @@
 #include "SimulationParameters.hpp"
 #include "NeosSolution.hpp"
 
+#include "biBluidMuRho.hpp"
+
 using std::vector;
 
 namespace neos {
@@ -84,7 +86,8 @@ PiercedVector<double> FaceCenterProjection(
  * @param[in] sol: reference to the solution struct at t^n
  */
 void ComputeProjectionStep(Solution& solNext,
-                           Solution& sol);
+                           Solution& sol,
+                           PiercedVector<double> &PV_levelSet);
 
 /**
  * @brief Compute face center normal velocity for solution at time n+1
@@ -93,7 +96,8 @@ void ComputeProjectionStep(Solution& solNext,
  * @param[in] sol: reference to the solution at t^{n}
  */
 void computeFCNormalVelocity(Solution& solNext,
-                             Solution& sol);
+                             Solution& sol,
+                             PiercedVector<double>& PV_levelSet);
 
 /**
  * @brief Build the RHS for projection step in Navier-Stokes Problem

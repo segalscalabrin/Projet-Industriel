@@ -70,7 +70,8 @@ Prediction::~Prediction()
 
 void Prediction::ComputePredictionStep(Solution& solPrev,
                                        Solution& sol,
-                                       Solution& solNext)
+                                       Solution& solNext,
+                                       PiercedVector<double>& levelSet)
 {
   solNext.VelocityCC.fill({0., 0., 0.});
   solNext.Ux.fill(0.);
@@ -104,7 +105,7 @@ void Prediction::ComputePredictionStep(Solution& solPrev,
   for (auto& cell: _grid->getCells())
   {
     kappaCC.emplace(cell.getId());
-    kappaCC[cell.getId()] = -_param->getFluidKinematicViscosity() * c_f;
+    kappaCC[cell.getId()] = -(taylorGreen_mu(levelSet[cell.getId()], 1.8*pow(10, -5), 1.0*pow(10, -3)) / taylorGreen_rho(levelSet[cell.getId()], 1000, 1)) * c_f;
   }
   for (auto& inter: _grid->getInterfaces())
   {
@@ -212,7 +213,7 @@ void Prediction::ComputePredictionStep(Solution& solPrev,
       // Prediction with Gear-scheme
       contrib = c_n * sol.VelocityCC[id][i]
                 + c_nm1 * solPrev.VelocityCC[id][i]
-                + c_f * (-conv - gradPressure[id][i]/_param->getFluidDensity());
+                + c_f * (-conv - gradPressure[id][i] / taylorGreen_rho(levelSet[cell.getId()], 1000, 1));
       switch(i)
       {
       case 0:

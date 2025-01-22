@@ -1,10 +1,10 @@
 #Test de fichier d'entree
 
 # Domain
-Domain origin: 1 5 10
+Domain origin: 0 0 0
 
 # Time
-Final time: 1.0
+Final time: 10.0
 
 # Output
 Writing Frequency:

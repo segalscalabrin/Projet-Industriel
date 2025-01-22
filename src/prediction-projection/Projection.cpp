@@ -167,14 +167,16 @@ PiercedVector<double> Projection::FaceCenterProjection(
 }
 
 void Projection::ComputeProjectionStep(Solution& solNext,
-                                       Solution& sol)
+                                       Solution& sol,
+                                       PiercedVector<double>& PV_levelSet)
 {
 
   lapP->zeroMatrix();
   lapP->zeroRHS();
   //Compute face center velocity
   this->computeFCNormalVelocity(solNext,
-                                sol);
+                                sol,
+                                PV_levelSet);
 
   // Build RHS
   this->buildRHS(solNext);
@@ -207,15 +209,19 @@ void Projection::ComputeProjectionStep(Solution& solNext,
   this->solveProjection(_psi);
 
   // update pressure
-  solNext.Pressure = sol.Pressure
-                     + _psi * (_param->getFluidDensity()/solNext.dt);
+  for (auto& cell: _grid->getCells())
+  {
+    solNext.Pressure[cell.getId()] = sol.Pressure[cell.getId()]
+                                      + _psi[cell.getId()] * (taylorGreen_rho(PV_levelSet[cell.getId()], 1000, 1)/solNext.dt);
+  }
 
   // Compute correction
   this->computeCorrection(solNext);
 }
 
 void Projection::computeFCNormalVelocity(Solution& solNext,
-                                         Solution& sol)
+                                         Solution& sol,
+                                         PiercedVector<double>& PV_levelSet)
 {
   // Compute pressure gradient
   Gradient grad(_grid->getDimension(), _grid, _stencils);
@@ -275,7 +281,7 @@ void Projection::computeFCNormalVelocity(Solution& solNext,
         {
           // U_{fc}^* =  U_{fc}^n + interp(U_{cc}^* - U_{cc}^n)
           double value = solNext.VelocityCC[neighId][dim]
-                         + (solNext.dt/_param->getFluidDensity())
+                         + (solNext.dt/taylorGreen_rho(PV_levelSet[owners[0]], 1000, 1))
                          * gradPressure[neighId][dim]
                          - sol.VelocityCC[neighId][dim];
 
@@ -287,7 +293,7 @@ void Projection::computeFCNormalVelocity(Solution& solNext,
         else
         {
           double value = solNext.VelocityCC[neighId][dim]
-                         + (solNext.dt/_param->getFluidDensity())
+                         + (solNext.dt/taylorGreen_rho(PV_levelSet[owners[0]], 1000, 1))
                          * gradPressure[neighId][dim];
 
           // U_{fc}^* = interp(U_{cc}^*)
@@ -312,7 +318,13 @@ void Projection::computeFCNormalVelocity(Solution& solNext,
   const PiercedVector<double> gradFC  =
     grad.computeFCLSGradient(sol.Pressure, sol.t, Var::P);
 
-  solNext.VelocityFC -= solNext.dt/_param->getFluidDensity() * gradFC;
+  for (auto &inter: _grid->getInterfaces())
+  {
+    const long& interId = inter.getId();
+    const std::array<long, 2>& owners = inter.getOwnerNeigh();
+
+    solNext.VelocityFC[interId] -= solNext.dt/taylorGreen_rho(PV_levelSet[owners[0]], 1000, 1) * gradFC[interId];
+  }
 }
 
 void Projection::buildRHS(Solution& solNext)

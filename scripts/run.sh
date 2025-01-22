@@ -6,7 +6,7 @@ ROOT_DIR=$(pwd)
 LOG_DIR="${ROOT_DIR}/logs"
 
 # Vérifier si l'exécutable existe
-if [[ ! -f ./levelset ]]; then
+if [[ ! -f ./navierstokes ]]; then
     echo "L'exécutable 'levelset' n'existe pas. Veuillez construire le projet d'abord."
     exit 1
 fi
