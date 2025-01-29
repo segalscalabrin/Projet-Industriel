@@ -3,3 +3,5 @@ solutions/
 builds/
 
 logs/
+
+*.vtu

@@ -44,7 +44,7 @@ using namespace neos;
 
 double taylorGreen_Ux(NPoint pt,double t=0.)
 {
-  return 0.0;
+  return pow(10, -10);
 }
 
 double taylorGreen_Uy(NPoint pt,double t=0.)
@@ -158,7 +158,12 @@ int main(int ac, char **av)
     solNext.FctInd[cellId]     = 1000.;
 
     sol.Pressure.emplace(cellId);
-    sol.Pressure[cellId] = taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * grid->evalCellCentroid(cellId)[1]; // rho* g* h
+    if (grid->evalCellCentroid(cellId)[1]<0.5) {
+      sol.Pressure[cellId] = 101325.0 + taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * (0.5-grid->evalCellCentroid(cellId)[1]); // rho* g* h
+    }
+    else if (grid->evalCellCentroid(cellId)[1]>=0.5) {
+      sol.Pressure[cellId] = 101325.0 - taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * (grid->evalCellCentroid(cellId)[1]-0.5); // rho* g* h
+    }
 
     solNext.Pressure.emplace(cellId);
     solNext.Pressure[cellId] = 0.0;
@@ -219,16 +224,46 @@ int main(int ac, char **av)
   {
     transportPiercedVector(grid, trpt, PV_levelSet, sol, 0.005);
 
-    std::cout << "test" << std::endl;
+    std::cout << std::endl;
+    std::cout << solPrev.Pressure[0] << std::endl;
+    std::cout << solPrev.Ux[0] << std::endl;
+    std::cout << solPrev.Uy[0] << std::endl;
+    std::cout << sol.Pressure[0] << std::endl;
+    std::cout << sol.Ux[0] << std::endl;
+    std::cout << sol.Uy[0] << std::endl;
+    std::cout << solNext.Pressure[0] << std::endl;
+    std::cout << solNext.Ux[0] << std::endl;
+    std::cout << solNext.Uy[0] << std::endl;
     prediction.ComputePredictionStep(solPrev,
                                      sol,
                                      solNext,
                                      PV_levelSet);
-    std::cout << "test" << std::endl;
+    std::cout << std::endl;
+    std::cout << solPrev.Pressure[0] << std::endl;
+    std::cout << solPrev.Ux[0] << std::endl;
+    std::cout << solPrev.Uy[0] << std::endl;
+    std::cout << sol.Pressure[0] << std::endl;
+    std::cout << sol.Ux[0] << std::endl;
+    std::cout << sol.Uy[0] << std::endl;
+    std::cout << solNext.Pressure[0] << std::endl;
+    std::cout << solNext.Ux[0] << std::endl;
+    std::cout << solNext.Uy[0] << std::endl;
 
     proj.ComputeProjectionStep(solNext,
                                sol,
                                PV_levelSet);
+    std::cout << std::endl;
+    std::cout << solPrev.Pressure[0] << std::endl;
+    std::cout << solPrev.Ux[0] << std::endl;
+    std::cout << solPrev.Uy[0] << std::endl;
+    std::cout << sol.Pressure[0] << std::endl;
+    std::cout << sol.Ux[0] << std::endl;
+    std::cout << sol.Uy[0] << std::endl;
+    std::cout << solNext.Pressure[0] << std::endl;
+    std::cout << solNext.Ux[0] << std::endl;
+    std::cout << solNext.Uy[0] << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
 
     solNext.t += 0.005;
 
