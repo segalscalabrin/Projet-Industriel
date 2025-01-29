@@ -41,21 +41,17 @@
 
 using namespace neos;
 
-double F(double t)
-{
-  double nu = 0.01;
-  return exp(-2*nu*t);
-}
 
 double taylorGreen_Ux(NPoint pt,double t=0.)
 {
-  return 0.5;
+  return 0.0;
 }
 
 double taylorGreen_Uy(NPoint pt,double t=0.)
 {
-  return 1.0;
+  return 0.0;
 }
+
 
 double computeInitialLevelSetValue(NPoint pt)
 {
@@ -109,6 +105,7 @@ int main(int ac, char **av)
   Solution sol, solPrev, solNext;
 
   /*----------------- Boundary conditions ------------------*/
+  // Gauche vitesse fixé haut bas vitesse nulle droite pression nulle
   BoundaryConditions BC;
   BC.addCondition(0, "Dirichlet", taylorGreen_Ux, Var::Ux);
   BC.addCondition(1, "Dirichlet", taylorGreen_Ux, Var::Ux);
@@ -125,16 +122,25 @@ int main(int ac, char **av)
   BC.addCondition(2, "Neumann", taylorGreen_Uy, Var::P);
   BC.addCondition(3, "Neumann", taylorGreen_Uy, Var::P);
 
-  Grid     *grid = new Grid(0,0,0, 1, 1.0 / std::pow(2, 5), &BC, GRID_2D);
+  // Condition au bord leveset Neumann homogene 
+
+
+  Grid *grid = new Grid(0,0,0, 1, 1.0 / std::pow(2, 5), &BC, GRID_2D);
 
   Transport *trpt = new Transport(grid);
   PiercedVector<double> PV_levelSet;
-  PiercedVector<double> PV_mu;
+  PiercedVector<double> PV_rho;
 
   /*----------------- Compute initial velocity --------------*/
   for (auto &cell: grid->getCells())
   {
     long cellId = cell.getId();
+
+    PV_levelSet.emplace(cellId);
+    PV_levelSet[cellId] = computeInitialLevelSetValue(grid->evalCellCentroid(cellId));
+
+    PV_rho.emplace(cellId);
+    PV_rho[cellId] = taylorGreen_mu(PV_levelSet[cellId], 1000.0, 1.0);
 
     sol.Ux.emplace(cellId);
     sol.Uy.emplace(cellId);
@@ -152,32 +158,26 @@ int main(int ac, char **av)
     solNext.FctInd[cellId]     = 1000.;
 
     sol.Pressure.emplace(cellId);
-    sol.Pressure[cellId] = 0.;
+    sol.Pressure[cellId] = taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * grid->evalCellCentroid(cellId)[1]; // rho* g* h
 
     solNext.Pressure.emplace(cellId);
-    solNext.Pressure[cellId] = 0.;
+    solNext.Pressure[cellId] = 0.0;
 
     solNext.Ux.emplace(cellId);
     solNext.Uy.emplace(cellId);
     solNext.VelocityCC.emplace(cellId);
-
-    PV_levelSet.emplace(cellId);
-    PV_levelSet[cellId] = computeInitialLevelSetValue(grid->evalCellCentroid(cellId));
-
-    PV_mu.emplace(cellId);
-    PV_mu[cellId] = taylorGreen_mu(PV_levelSet[cellId], 1000.0, 1.0);
   }
 
   /*--------------- Write solution at time 0 ---------- */
   auto velCC = PVtoV(sol.VelocityCC, grid);
   auto pressure = PVtoV(sol.Pressure, grid);
   auto V_levelSet = PVtoV(PV_levelSet, grid);
-  auto V_mu = PVtoV(PV_mu, grid);
+  auto V_rho = PVtoV(PV_rho, grid);
   grid->setExportName("TaylorGreen_0");
   grid->addData("Vel", velCC);
   grid->addData("pressure", pressure);
   grid->addData("Levelset", V_levelSet);
-  grid->addData("mu", V_mu);
+  grid->addData("Rho", V_rho);
   grid->write();
 
   /*----------------- Projection at face center ----------*/
@@ -214,15 +214,17 @@ int main(int ac, char **av)
   int iter(0);
   Prediction prediction(grid, &stencils, &param);
 
-  /*-------------------  Time loop -------------------*/
+  /*-------------------  Time loop -------------------*/ 
   while (solNext.t < 1.)
   {
     transportPiercedVector(grid, trpt, PV_levelSet, sol, 0.005);
 
+    std::cout << "test" << std::endl;
     prediction.ComputePredictionStep(solPrev,
                                      sol,
                                      solNext,
                                      PV_levelSet);
+    std::cout << "test" << std::endl;
 
     proj.ComputeProjectionStep(solNext,
                                sol,
@@ -231,8 +233,6 @@ int main(int ac, char **av)
     solNext.t += 0.005;
 
     CommonTools::update(solPrev, sol, solNext);
-
-
 
 
     // Sauvegarde des valeur

@@ -116,12 +116,14 @@ void Prediction::ComputePredictionStep(Solution& solPrev,
   // FIXME: Separate build of matrix and vector.
   // The matrix could be computed once at each mesh refinment instead of at
   // each iteration (if there is no penalization).
+  
   lapU->zeroMatrix();
   lapU->zeroRHS();
   lapU->buildFVMatrix(kappaCC,
                      kappaFC,
                      solNext.t + solNext.dt,
                      Var::Ux);
+                    
   lapV->zeroMatrix();
   lapV->zeroRHS();
   lapV->buildFVMatrix(kappaCC,
@@ -214,13 +216,22 @@ void Prediction::ComputePredictionStep(Solution& solPrev,
       contrib = c_n * sol.VelocityCC[id][i]
                 + c_nm1 * solPrev.VelocityCC[id][i]
                 + c_f * (-conv - gradPressure[id][i] / taylorGreen_rho(levelSet[cell.getId()], 1000, 1));
+                /*
+        std::cout << "c_n * sol.VelocityCC[id][i] : ";
+        std::cout << c_n * sol.VelocityCC[id][i] << std::endl;
+        std::cout << "c_nm1 * solPrev.VelocityCC[id][i] : ";
+        std::cout << c_nm1 * solPrev.VelocityCC[id][i] << std::endl;
+        std::cout << "c_f * (-conv - gradPressure[id][i] / taylorGreen_rho(levelSet[cell.getId()], 1000, 1)) : ";
+        std::cout << c_f * (-conv - gradPressure[id][i] / taylorGreen_rho(levelSet[cell.getId()], 1000, 1)) << std::endl;
+        */
       switch(i)
       {
       case 0:
         lapU->addMatrixValue(g_i, g_i, diagVal);
-        lapU->addRHSValue(g_i,contrib);
+        lapU->addRHSValue(g_i,contrib); 
         break;
       case 1:
+        contrib -= 9.81; // Add gravity
         lapV->addMatrixValue(g_i, g_i, diagVal);
         lapV->addRHSValue(g_i,contrib);
         break;

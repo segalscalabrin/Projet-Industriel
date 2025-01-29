@@ -415,7 +415,7 @@ void Projection::computeCorrection(Solution& solNext)
   for (auto& cell: _grid->getCells())
   {
     const long& cellId = cell.getId();
-    solNext.Ux[cellId] = solNext.VelocityCC[cellId][0];
+    solNext.Ux[cellId] = 0.0;
 
     solNext.Uy[cellId] = solNext.VelocityCC[cellId][1];
   }
