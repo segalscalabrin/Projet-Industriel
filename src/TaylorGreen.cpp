@@ -55,7 +55,12 @@ double taylorGreen_Uy(NPoint pt,double t=0.)
 
 double computeInitialLevelSetValue(NPoint pt)
 {
-  return pt[1] - 0.5;
+  if (pt[0]<0.5) {
+    return pt[1] - 0.7;
+  }
+  else {
+    return pt[1] - 0.3;
+  }
 }
 
 NPoint computeVitesseValue(double Ux, double Uy, double Uz)
@@ -140,7 +145,7 @@ int main(int ac, char **av)
     PV_levelSet[cellId] = computeInitialLevelSetValue(grid->evalCellCentroid(cellId));
 
     PV_rho.emplace(cellId);
-    PV_rho[cellId] = taylorGreen_mu(PV_levelSet[cellId], 1000.0, 1.0);
+    PV_rho[cellId] = taylorGreen_rho(PV_levelSet[cellId], 1000.0, 1.0);
 
     sol.Ux.emplace(cellId);
     sol.Uy.emplace(cellId);
@@ -158,12 +163,7 @@ int main(int ac, char **av)
     solNext.FctInd[cellId]     = 1000.;
 
     sol.Pressure.emplace(cellId);
-    if (grid->evalCellCentroid(cellId)[1]<0.5) {
-      sol.Pressure[cellId] = 101325.0 + taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * (0.5-grid->evalCellCentroid(cellId)[1]); // rho* g* h
-    }
-    else if (grid->evalCellCentroid(cellId)[1]>=0.5) {
-      sol.Pressure[cellId] = 101325.0 - taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * (grid->evalCellCentroid(cellId)[1]-0.5); // rho* g* h
-    }
+    sol.Pressure[cellId] = 101325.0 - taylorGreen_rho(PV_levelSet[cellId], 1000, 1) * 9.81 * PV_levelSet[cellId]; 
 
     solNext.Pressure.emplace(cellId);
     solNext.Pressure[cellId] = 0.0;
